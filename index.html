@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Wallet Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        .login-card {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .role-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .role-admin {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .role-user {
+            background: #4ecdc4;
+            color: white;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .balance-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .transaction-positive {
+            color: #28a745;
+        }
+        
+        .transaction-negative {
+            color: #dc3545;
+        }
+        
+        .ticket-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .ticket-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-open {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .status-closed {
+            background: #d1f2eb;
+            color: #00b894;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen">
+        <div class="container">
+            <div class="card login-card">
+                <h1>Crypto Wallet Demo</h1>
+                <p style="margin-bottom: 30px; color: #666;">Demo credentials:</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                    <strong>Admin:</strong> admin@demo.com / admin123<br>
+                    <strong>User:</strong> user@demo.com / user123
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+        <div class="container">
+            <div class="header">
+                <div class="user-info">
+                    <h2 id="welcomeMessage">Welcome!</h2>
+                    <span id="roleBadge" class="role-badge">USER</span>
+                </div>
+                <button onclick="logout()">Logout</button>
+            </div>
+
+            <!-- User Dashboard -->
+            <div id="userDashboard">
+                <div class="dashboard-grid">
+                    <div class="card balance-card">
+                        <h3>Wallet Balance</h3>
+                        <div class="balance-amount" id="userBalance">$0.00</div>
+                        <div>
+                            <button onclick="showDepositModal()">Deposit</button>
+                            <button onclick="showWithdrawModal()">Withdraw</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Recent Transactions</h3>
+                        <div id="transactionsList">
+                            <p style="color: #666;">No transactions yet</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Support</h3>
+                        <button onclick="showCreateTicketModal()">Create Support Ticket</button>
+                        <div id="userTickets" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="hidden">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>User Management</h3>
+                        <div id="usersList"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Simulate Transaction</h3>
+                        <form id="simulateTransactionForm">
+                            <div class="form-group">
+                                <label for="targetUser">User</label>
+                                <select id="targetUser" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionAmount">Amount ($)</label>
+                                <input type="number" id="transactionAmount" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionType">Type</label>
+                                <select id="transactionType" required>
+                                    <option value="deposit">Deposit</option>
+                                    <option value="withdrawal">Withdrawal</option>
+                                </select>
+                            </div>
+                            <button type="submit">Simulate Transaction</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Support Tickets</h3>
+                        <div id="allTickets"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="depositModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Deposit Funds</h3>
+            <form id="depositForm">
+                <div class="form-group">
+                    <label for="depositAmount">Amount ($)</label>
+                    <input type="number" id="depositAmount" step="0.01" min="1" required>
+                </div>
+                <button type="submit">Deposit</button>
+                <button type="button" onclick="closeModal('depositModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Withdraw Funds</h3>
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label for="withdrawAmount">Amount ($)</label>
+                    <input type="number" id="withdrawAmount" step="0.01" min="1" required>
+                </div>
+                <button type="submit">Withdraw</button>
+                <button type="button" onclick="closeModal('withdrawModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="createTicketModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Create Support Ticket</h3>
+            <form id="createTicketForm">
+                <div class="form-group">
+                    <label for="ticketSubject">Subject</label>
+                    <input type="text" id="ticketSubject" required>
+                </div>
+                <div class="form-group">
+                    <label for="ticketMessage">Message</label>
+                    <textarea id="ticketMessage" rows="4" required></textarea>
+                </div>
+                <button type="submit">Create Ticket</button>
+                <button type="button" onclick="closeModal('createTicketModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        let users = [];
+        let transactions = [];
+        let tickets = [];
+
+        // Initialize demo data
+        function initDemoData() {
+            users = [
+                {
+                    id: 1,
+                    email: 'admin@demo.com',
+                    password: 'admin123',
+                    role: 'admin',
+                    balance: 10000.00,
+                    name: 'Admin User'
+                },
+                {
+                    id: 2,
+                    email: 'user@demo.com',
+                    password: 'user123',
+                    role: 'user',
+                    balance: 500.00,
+                    name: 'Demo User'
+                }
+            ];
+
+            transactions = [
+                {
+                    id: 1,
+                    userId: 2,
+                    type: 'deposit',
+                    amount: 500.00,
+                    date: new Date().toISOString(),
+                    description: 'Initial deposit'
+                }
+            ];
+
+            tickets = [
+                {
+                    id: 1,
+                    userId: 2,
+                    subject: 'Question about withdrawal limits',
+                    message: 'What are the daily withdrawal limits?',
+                    status: 'open',
+                    created: new Date().toISOString()
+                }
+            ];
+        }
+
+        // Authentication
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                showDashboard();
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}!`;
+            document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
+            document.getElementById('roleBadge').className = `role-badge role-${currentUser.role}`;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('userDashboard').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminDashboard();
+            } else {
+                document.getElementById('userDashboard').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+                loadUserDashboard();
+            }
+        }
+
+        function loadUserDashboard() {
+            document.getElementById('userBalance').textContent = `$${currentUser.balance.toFixed(2)}`;
+            loadUserTransactions();
+            loadUserTickets();
+        }
+
+        function loadUserTransactions() {
+            const userTransactions = transactions.filter(t => t.userId === currentUser.id);
+            const container = document.getElementById('transactionsList');
+            
+            if (userTransactions.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No transactions yet</p>';
+                return;
+            }
+            
+            container.innerHTML = userTransactions.map(t => `
+                <div class="transaction-item">
+                    <div>
+                        <div>${t.description}</div>
+                        <small>${new Date(t.date).toLocaleDateString()}</small>
+                    </div>
+                    <div class="transaction-amount ${t.type === 'deposit' ? 'transaction-positive' : 'transaction-negative'}">
+                        ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadUserTickets() {
+            const userTickets = tickets.filter(t => t.userId === currentUser.id);
+            const container = document.getElementById('userTickets');
+            
+            if (userTickets.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No support tickets</p>';
+                return;
+            }
+            
+            container.innerHTML = userTickets.map(t => `
+                <div class="ticket-item">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 10px;">
+                        <strong>${t.subject}</strong>
+                        <span class="ticket-status status-${t.status}">${t.status}</span>
+                    </div>
+                    <p style="color: #666;">${t.message}</p>
+                    <small>Created: ${new Date(t.created).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+        }
+
+        function loadAdminDashboard() {
+            loadUsersList();
+            loadAdminTickets();
+            populateUserSelect();
+        }
+
+        function loadUsersList() {
+            const regularUsers = users.filter(u => u.role === 'user');
+            const container = document.getElementById('usersList');
+            
+            container.innerHTML = regularUsers.map(u => `
+                <div class="transaction-item">
+                    <div>
+                        <div><strong>${u.name}</strong></div>
+                        <small>${u.email}</small>
+                    </div>
+                    <div>
+                        <div><strong>$${u.balance.toFixed(2)}</strong></div>
+                        <button onclick="modifyUserBalance(${u.id})" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Modify Balance</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAdminTickets() {
+            const container = document.getElementById('allTickets');
+            
+            if (tickets.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No support tickets</p>';
+                return;
+            }
+            
+            container.innerHTML = tickets.map(t => {
+                const user = users.find(u => u.id === t.userId);
+                return `
+                    <div class="ticket-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong>${t.subject}</strong>
+                                <small style="color: #666;"> - ${user?.name}</small>
+                            </div>
+                            <div>
+                                <span class="ticket-status status-${t.status}">${t.status}</span>
+                                ${t.status === 'open' ? `<button onclick="closeTicket(${t.id})" class="btn-success" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">Close</button>` : ''}
+                            </div>
+                        </div>
+                        <p style="color: #666; margin-bottom: 10px;">${t.message}</p>
+                        <small>Created: ${new Date(t.created).toLocaleDateString()}</small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateUserSelect() {
+            const select = document.getElementById('targetUser');
+            const regularUsers = users.filter(u => u.role === 'user');
+            
+            select.innerHTML = regularUsers.map(u => 
+                `<option value="${u.id}">${u.name} (${u.email})</option>`
+            ).join('');
+        }
+
+        // Transaction handling
+        document.getElementById('depositForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            
+            currentUser.balance += amount;
+            
+            transactions.push({
+                id: transactions.length + 1,
+                userId: currentUser.id,
+                type: 'deposit',
+                amount: amount,
+                date: new Date().toISOString(),
+                description: 'Wallet deposit'
+            });
+            
+            loadUserDashboard();
+            closeModal('depositModal');
+            this.reset();
+        });
+
+        document.getElementById('withdrawForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            if (amount > currentUser.balance) {
+                alert('Insufficient funds');
+                return;
+            }
+            
+            currentUser.balance -= amount;
+            
+            transactions.push({
+                id: transactions.length + 1,
+                userId: currentUser.id,
+                type: 'withdrawal',
+                amount: amount,
+                date: new Date().toISOString(),
+                description: 'Cash withdrawal'
+            });
+            
+            loadUserDashboard();
+            closeModal('withdrawModal');
+            this.reset();
+        });
+
+        document.getElementById('simulateTransactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userId = parseInt(document.getElementById('targetUser').value);
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const type = document.getElementById('transactionType').value;
+            
+            const user = users.find(u => u.id === userId);
+            
+            if (type === 'deposit') {
+                user.balance += amount;
+            } else {
+                if (amount > user.balance) {
+                    alert('User has insufficient funds');
+                    return;
+                }
+                user.balance -= amount;
+            }
+            
+            transactions.push({
+                id: transactions.length + 1,
+                userId: userId,
+                type: type,
+                amount: amount,
+                date: new Date().toISOString(),
+                description: `Admin simulated ${type}`
+            });
+            
+            loadAdminDashboard();
+            this.reset();
+            alert('Transaction simulated successfully!');
+        });
+
+        // Support ticket handling
+        document.getElementById('createTicketForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('ticketSubject').value;
+            const message = document.getElementById('ticketMessage').value;
+            
+            tickets.push({
+                id: tickets.length + 1,
+                userId: currentUser.id,
+                subject: subject,
+                message: message,
+                status: 'open',
+                created: new Date().toISOString()
+            });
+            
+            loadUserTickets();
+            closeModal('createTicketModal');
+            this.reset();
+            alert('Support ticket created successfully!');
+        });
+
+        // Modal functions
+        function showDepositModal() {
+            document.getElementById('depositModal').classList.remove('hidden');
+        }
+
+        function showWithdrawModal() {
+            document.getElementById('withdrawModal').classList.remove('hidden');
+        }
+
+        function showCreateTicketModal() {
+            document.getElementById('createTicketModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function modifyUserBalance(userId) {
+            const newBalance = prompt('Enter new balance:');
+            if (newBalance !== null && !isNaN(newBalance)) {
+                const user = users.find(u => u.id === userId);
+                user.balance = parseFloat(newBalance);
+                loadAdminDashboard();
+            }
+        }
+
+        function closeTicket(ticketId) {
+            const ticket = tickets.find(t => t.id === ticketId);
+            ticket.status = 'closed';
+            loadAdminTickets();
+        }
+
+        // Initialize the application
+        initDemoData();
+    </script>
+</body>
+</html>
