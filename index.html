@@ -197,21 +197,25 @@
             color: #00b894;
         }
         
-        .hidden {
-            display: none;
+        .hide {
+            display: none !important;
         }
         
         .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
         }
         
         .modal-content {
@@ -252,7 +256,7 @@
     </div>
 
     <!-- Dashboard -->
-    <div id="dashboard" class="hidden">
+    <div id="dashboard" class="hide">
         <div class="container">
             <div class="header">
                 <div class="user-info">
@@ -290,7 +294,7 @@
             </div>
 
             <!-- Admin Dashboard -->
-            <div id="adminDashboard" class="hidden">
+            <div id="adminDashboard" class="hide">
                 <div class="dashboard-grid">
                     <div class="card">
                         <h3>User Management</h3>
@@ -329,7 +333,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="depositModal" class="modal hidden">
+    <div id="depositModal" class="modal">
         <div class="modal-content">
             <h3>Deposit Funds</h3>
             <form id="depositForm">
@@ -343,7 +347,7 @@
         </div>
     </div>
 
-    <div id="withdrawModal" class="modal hidden">
+    <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <h3>Withdraw Funds</h3>
             <form id="withdrawForm">
@@ -357,7 +361,7 @@
         </div>
     </div>
 
-    <div id="createTicketModal" class="modal hidden">
+    <div id="createTicketModal" class="modal">
         <div class="modal-content">
             <h3>Create Support Ticket</h3>
             <form id="createTicketForm">
@@ -376,13 +380,11 @@
     </div>
 
     <script>
-        // Application State
         let currentUser = null;
         let users = [];
         let transactions = [];
         let tickets = [];
 
-        // Initialize demo data
         function initDemoData() {
             users = [
                 {
@@ -426,7 +428,6 @@
             ];
         }
 
-        // Authentication
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -444,26 +445,26 @@
 
         function logout() {
             currentUser = null;
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('dashboard').classList.add('hide');
             document.getElementById('loginForm').reset();
         }
 
         function showDashboard() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('loginScreen').classList.add('hide');
+            document.getElementById('dashboard').classList.remove('hide');
             
             document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}!`;
             document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
             document.getElementById('roleBadge').className = `role-badge role-${currentUser.role}`;
             
             if (currentUser.role === 'admin') {
-                document.getElementById('userDashboard').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('userDashboard').classList.add('hide');
+                document.getElementById('adminDashboard').classList.remove('hide');
                 loadAdminDashboard();
             } else {
-                document.getElementById('userDashboard').classList.remove('hidden');
-                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('userDashboard').classList.remove('hide');
+                document.getElementById('adminDashboard').classList.add('hide');
                 loadUserDashboard();
             }
         }
@@ -507,7 +508,7 @@
             
             container.innerHTML = userTickets.map(t => `
                 <div class="ticket-item">
-                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong>${t.subject}</strong>
                         <span class="ticket-status status-${t.status}">${t.status}</span>
                     </div>
@@ -579,7 +580,6 @@
             ).join('');
         }
 
-        // Transaction handling
         document.getElementById('depositForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const amount = parseFloat(document.getElementById('depositAmount').value);
@@ -657,7 +657,6 @@
             alert('Transaction simulated successfully!');
         });
 
-        // Support ticket handling
         document.getElementById('createTicketForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const subject = document.getElementById('ticketSubject').value;
@@ -678,21 +677,20 @@
             alert('Support ticket created successfully!');
         });
 
-        // Modal functions
         function showDepositModal() {
-            document.getElementById('depositModal').classList.remove('hidden');
+            document.getElementById('depositModal').classList.add('show');
         }
 
         function showWithdrawModal() {
-            document.getElementById('withdrawModal').classList.remove('hidden');
+            document.getElementById('withdrawModal').classList.add('show');
         }
 
         function showCreateTicketModal() {
-            document.getElementById('createTicketModal').classList.remove('hidden');
+            document.getElementById('createTicketModal').classList.add('show');
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('show');
         }
 
         function modifyUserBalance(userId) {
@@ -710,7 +708,6 @@
             loadAdminTickets();
         }
 
-        // Initialize the application
         initDemoData();
     </script>
 </body>
