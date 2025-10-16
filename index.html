@@ -627,7 +627,619 @@
         let cryptoPrices = {};
         
         const currencies = {
-            USD: { symbol: '$', rate: 1 },
+            USD: { symbol: '
+
+        function initDemoData() {
+            cryptoPrices = JSON.parse(JSON.stringify(cryptoData));
+            
+            users = [
+                {
+                    id: 1,
+                    email: 'admin@demo.com',
+                    password: 'admin123',
+                    role: 'admin',
+                    name: 'Admin User',
+                    balances: {
+                        BTC: 1.5,
+                        ETH: 10,
+                        BNB: 50,
+                        SOL: 100,
+                        XRP: 1000,
+                        ADA: 2000,
+                        DOGE: 5000,
+                        DOT: 200,
+                        MATIC: 1500,
+                        AVAX: 50
+                    }
+                },
+                {
+                    id: 2,
+                    email: 'user@demo.com',
+                    password: 'user123',
+                    role: 'user',
+                    name: 'Demo User',
+                    balances: {
+                        BTC: 0.05,
+                        ETH: 1.2,
+                        BNB: 5,
+                        SOL: 10,
+                        XRP: 100,
+                        ADA: 200,
+                        DOGE: 500,
+                        DOT: 20,
+                        MATIC: 150,
+                        AVAX: 5
+                    }
+                }
+            ];
+
+            transactions = [
+                {
+                    id: 1,
+                    userId: 2,
+                    type: 'deposit',
+                    crypto: 'BTC',
+                    amount: 0.05,
+                    date: new Date().toISOString(),
+                    description: 'Initial BTC deposit'
+                }
+            ];
+
+            tickets = [
+                {
+                    id: 1,
+                    userId: 2,
+                    subject: 'Question about withdrawal limits',
+                    message: 'What are the daily withdrawal limits?',
+                    status: 'open',
+                    created: new Date().toISOString()
+                }
+            ];
+            
+            simulatePriceUpdates();
+        }
+        
+        function simulatePriceUpdates() {
+            setInterval(() => {
+                Object.keys(cryptoPrices).forEach(symbol => {
+                    const change = (Math.random() - 0.5) * 0.02;
+                    cryptoPrices[symbol].price *= (1 + change);
+                });
+                
+                if (currentUser && currentUser.role === 'user') {
+                    updateCryptoPortfolio();
+                    document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+                }
+            }, 5000);
+        }
+        
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hide');
+            document.getElementById('signupForm').classList.add('hide');
+        }
+        
+        function showSignupForm() {
+            document.getElementById('loginForm').classList.add('hide');
+            document.getElementById('signupForm').classList.remove('hide');
+        }
+
+        if (document.getElementById('loginFormSubmit')) {
+            document.getElementById('loginFormSubmit').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                console.log('Login attempt:', email);
+                
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    console.log('Login successful');
+                    currentUser = user;
+                    showDashboard();
+                } else {
+                    alert('Invalid credentials');
+                }
+            });
+        }
+        
+        if (document.getElementById('signupFormSubmit')) {
+            document.getElementById('signupFormSubmit').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                
+                console.log('Signup attempt:', email);
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                if (users.find(u => u.email === email)) {
+                    alert('Email already registered!');
+                    return;
+                }
+                
+                const newUser = {
+                    id: users.length + 1,
+                    email: email,
+                    password: password,
+                    role: 'user',
+                    name: name,
+                    balances: {
+                        BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0,
+                        ADA: 0, DOGE: 0, DOT: 0, MATIC: 0, AVAX: 0
+                    }
+                };
+                
+                users.push(newUser);
+                console.log('Signup successful');
+                alert('Account created successfully! Please login.');
+                showLoginForm();
+                this.reset();
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authScreen').classList.remove('hide');
+            document.getElementById('dashboard').classList.add('hide');
+            showLoginForm();
+        }
+
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hide');
+            document.getElementById('dashboard').classList.remove('hide');
+            
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}!`;
+            document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
+            document.getElementById('roleBadge').className = `role-badge role-${currentUser.role}`;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('userDashboard').classList.add('hide');
+                document.getElementById('adminDashboard').classList.remove('hide');
+                loadAdminDashboard();
+            } else {
+                document.getElementById('userDashboard').classList.remove('hide');
+                document.getElementById('adminDashboard').classList.add('hide');
+                loadUserDashboard();
+            }
+        }
+        
+        function changeCurrency(currency) {
+            currentCurrency = currency;
+            document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+        }
+        
+        function formatCurrency(amount) {
+            const curr = currencies[currentCurrency];
+            return curr.symbol + (amount * curr.rate).toFixed(2);
+        }
+        
+        function calculateTotalBalance() {
+            let total = 0;
+            Object.keys(currentUser.balances).forEach(symbol => {
+                total += currentUser.balances[symbol] * cryptoPrices[symbol].price;
+            });
+            return total;
+        }
+
+        function loadUserDashboard() {
+            document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+            updateCryptoPortfolio();
+            loadUserTransactions();
+            loadUserTickets();
+            populateCryptoSelects();
+        }
+        
+        function updateCryptoPortfolio() {
+            const container = document.getElementById('cryptoPortfolio');
+            container.innerHTML = Object.keys(cryptoPrices).map(symbol => {
+                const balance = currentUser.balances[symbol];
+                const value = balance * cryptoPrices[symbol].price;
+                return `
+                    <div class="crypto-card" onclick="showDepositModal('${symbol}')">
+                        <div class="crypto-symbol">${symbol}</div>
+                        <div class="crypto-name">${cryptoPrices[symbol].name}</div>
+                        <div class="crypto-price">${formatCurrency(cryptoPrices[symbol].price)}</div>
+                        <div class="crypto-balance">${balance.toFixed(8)} ${symbol}</div>
+                        <small style="color: #666; margin-top: 5px; display: block;">${formatCurrency(value)}</small>
+                        <button style="margin-top: 10px; font-size: 12px; padding: 6px 12px;" onclick="event.stopPropagation(); showWithdrawModal('${symbol}')">Withdraw</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function loadUserTransactions() {
+            const userTransactions = transactions.filter(t => t.userId === currentUser.id);
+            const container = document.getElementById('transactionsList');
+            
+            if (userTransactions.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No transactions yet</p>';
+                return;
+            }
+            
+            container.innerHTML = userTransactions.map(t => {
+                const value = t.amount * cryptoPrices[t.crypto].price;
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <div><strong>${t.description}</strong></div>
+                            <small>${new Date(t.date).toLocaleDateString()}</small>
+                        </div>
+                        <div>
+                            <div class="transaction-amount ${t.type === 'deposit' ? 'transaction-positive' : 'transaction-negative'}">
+                                ${t.type === 'deposit' ? '+' : '-'}${t.amount.toFixed(8)} ${t.crypto}
+                            </div>
+                            <small style="color: #888;">${formatCurrency(value)}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadUserTickets() {
+            const userTickets = tickets.filter(t => t.userId === currentUser.id);
+            const container = document.getElementById('userTickets');
+            
+            if (userTickets.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No support tickets</p>';
+                return;
+            }
+            
+            container.innerHTML = userTickets.map(t => `
+                <div class="ticket-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>${t.subject}</strong>
+                        <span class="ticket-status status-${t.status}">${t.status}</span>
+                    </div>
+                    <p style="color: #666;">${t.message}</p>
+                    <small>Created: ${new Date(t.created).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+        }
+
+        function loadAdminDashboard() {
+            loadUsersList();
+            loadAdminTickets();
+            populateUserSelect();
+            populateCryptoSelects();
+        }
+
+        function loadUsersList() {
+            const regularUsers = users.filter(u => u.role === 'user');
+            const container = document.getElementById('usersList');
+            
+            container.innerHTML = regularUsers.map(u => {
+                let totalBalance = 0;
+                Object.keys(u.balances).forEach(symbol => {
+                    totalBalance += u.balances[symbol] * cryptoPrices[symbol].price;
+                });
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <div><strong>${u.name}</strong></div>
+                            <small>${u.email}</small>
+                        </div>
+                        <div>
+                            <div><strong>${formatCurrency(totalBalance)}</strong></div>
+                            <button onclick="modifyUserBalance(${u.id})" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Modify Balance</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAdminTickets() {
+            const container = document.getElementById('allTickets');
+            
+            if (tickets.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No support tickets</p>';
+                return;
+            }
+            
+            container.innerHTML = tickets.map(t => {
+                const user = users.find(u => u.id === t.userId);
+                return `
+                    <div class="ticket-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong>${t.subject}</strong>
+                                <small style="color: #666;"> - ${user?.name}</small>
+                            </div>
+                            <div>
+                                <span class="ticket-status status-${t.status}">${t.status}</span>
+                                ${t.status === 'open' ? `<button onclick="closeTicket(${t.id})" class="btn-success" style="font-size: 12px; padding: 4px 8px; margin-left: 10px;">Close</button>` : ''}
+                            </div>
+                        </div>
+                        <p style="color: #666; margin-bottom: 10px;">${t.message}</p>
+                        <small>Created: ${new Date(t.created).toLocaleDateString()}</small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateCryptoSelects() {
+            const selects = [
+                document.getElementById('depositCrypto'),
+                document.getElementById('withdrawCrypto'),
+                document.getElementById('cryptoSelect')
+            ];
+            
+            selects.forEach(select => {
+                if (select) {
+                    select.innerHTML = Object.keys(cryptoPrices).map(symbol => 
+                        `<option value="${symbol}">${symbol} - ${cryptoPrices[symbol].name}</option>`
+                    ).join('');
+                }
+            });
+        }
+
+        function populateUserSelect() {
+            const select = document.getElementById('targetUser');
+            const regularUsers = users.filter(u => u.role === 'user');
+            
+            select.innerHTML = regularUsers.map(u => 
+                `<option value="${u.id}">${u.name} (${u.email})</option>`
+            ).join('');
+        }
+
+        function showDepositModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('depositCrypto').value = symbol;
+            }
+            document.getElementById('depositModal').classList.add('show');
+        }
+
+        function showWithdrawModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('withdrawCrypto').value = symbol;
+                updateWithdrawInfo();
+            }
+            resetWithdrawForm();
+            document.getElementById('withdrawModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function closeWithdrawModal() {
+            closeModal('withdrawModal');
+            resetWithdrawForm();
+        }
+        
+        function resetWithdrawForm() {
+            goToWithdrawStep1();
+            document.getElementById('withdrawForm').reset();
+        }
+
+        if (document.getElementById('depositForm')) {
+            document.getElementById('depositForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const crypto = document.getElementById('depositCrypto').value;
+                const amount = parseFloat(document.getElementById('depositAmount').value);
+                
+                if (amount <= 0) {
+                    alert('Amount must be greater than 0');
+                    return;
+                }
+                
+                currentUser.balances[crypto] += amount;
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: currentUser.id,
+                    type: 'deposit',
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `${crypto} deposit`
+                });
+                
+                loadUserDashboard();
+                closeModal('depositModal');
+                this.reset();
+                alert('Deposit successful!');
+            });
+        }
+
+        if (document.getElementById('withdrawForm')) {
+            document.getElementById('withdrawForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const crypto = document.getElementById('withdrawCrypto').value;
+                const amount = parseFloat(document.getElementById('withdrawAmount').value);
+                const code2FA = document.getElementById('withdraw2FA').value;
+                
+                if (code2FA !== '123456') {
+                    alert('Invalid 2FA code!');
+                    return;
+                }
+                
+                if (amount > currentUser.balances[crypto]) {
+                    alert('Insufficient balance');
+                    return;
+                }
+                
+                const networkFee = amount * 0.001;
+                currentUser.balances[crypto] -= (amount + networkFee);
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: currentUser.id,
+                    type: 'withdrawal',
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `${crypto} withdrawal to ${document.getElementById('withdrawAddress').value.substring(0, 10)}...`
+                });
+                
+                loadUserDashboard();
+                closeWithdrawModal();
+                alert('Withdrawal confirmed! Your funds will be sent to the provided address.');
+            });
+        }
+
+        if (document.getElementById('simulateTransactionForm')) {
+            document.getElementById('simulateTransactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const userId = parseInt(document.getElementById('targetUser').value);
+                const crypto = document.getElementById('cryptoSelect').value;
+                const amount = parseFloat(document.getElementById('transactionAmount').value);
+                const type = document.getElementById('transactionType').value;
+                
+                const user = users.find(u => u.id === userId);
+                
+                if (type === 'deposit') {
+                    user.balances[crypto] += amount;
+                } else {
+                    if (amount > user.balances[crypto]) {
+                        alert('User has insufficient balance');
+                        return;
+                    }
+                    user.balances[crypto] -= amount;
+                }
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: userId,
+                    type: type,
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `Admin simulated ${type}`
+                });
+                
+                loadAdminDashboard();
+                this.reset();
+                alert('Transaction simulated successfully!');
+            });
+        }
+
+        if (document.getElementById('createTicketForm')) {
+            document.getElementById('createTicketForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const subject = document.getElementById('ticketSubject').value;
+                const message = document.getElementById('ticketMessage').value;
+                
+                tickets.push({
+                    id: tickets.length + 1,
+                    userId: currentUser.id,
+                    subject: subject,
+                    message: message,
+                    status: 'open',
+                    created: new Date().toISOString()
+                });
+                
+                loadUserTickets();
+                closeModal('createTicketModal');
+                this.reset();
+                alert('Support ticket created successfully!');
+            });
+        }
+
+        function showCreateTicketModal() {
+            document.getElementById('createTicketModal').classList.add('show');
+        }
+        
+        function updateWithdrawInfo() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const balance = currentUser.balances[crypto];
+            const price = cryptoPrices[crypto].price;
+            document.getElementById('availableBalance').textContent = `Available: ${balance.toFixed(8)} ${crypto} (${formatCurrency(balance * price)})`;
+        }
+        
+        function goToWithdrawStep1() {
+            document.getElementById('withdrawStep1').classList.remove('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2').classList.remove('active', 'completed');
+            document.getElementById('step3').classList.remove('active', 'completed');
+        }
+        
+        function goToWithdrawStep2() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            if (!crypto || !amount || amount <= 0) {
+                alert('Please select cryptocurrency and enter amount');
+                return;
+            }
+            
+            if (amount > currentUser.balances[crypto]) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.remove('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.add('active');
+        }
+        
+        function goToWithdrawStep3() {
+            const address = document.getElementById('withdrawAddress').value;
+            const network = document.getElementById('withdrawNetwork').value;
+            
+            if (!address || !network) {
+                alert('Please enter wallet address and select network');
+                return;
+            }
+            
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const fee = amount * 0.001;
+            const receive = amount - fee;
+            
+            document.getElementById('confirmCrypto').textContent = crypto;
+            document.getElementById('confirmAmount').textContent = `${amount.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmFee').textContent = `${fee.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmReceive').textContent = `${receive.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmAddress').textContent = address;
+            document.getElementById('confirmNetwork').textContent = network.toUpperCase();
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.remove('hide');
+            
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+        }
+
+        function modifyUserBalance(userId) {
+            const user = users.find(u => u.id === userId);
+            const crypto = prompt('Enter cryptocurrency symbol (BTC, ETH, BNB, etc.):').toUpperCase();
+            
+            if (!crypto || !cryptoPrices[crypto]) {
+                alert('Invalid cryptocurrency');
+                return;
+            }
+            
+            const newBalance = prompt(`Enter new balance for ${crypto}:`);
+            if (newBalance !== null && !isNaN(newBalance)) {
+                user.balances[crypto] = parseFloat(newBalance);
+                loadAdminDashboard();
+            }
+        }
+
+        function closeTicket(ticketId) {
+            const ticket = tickets.find(t => t.id === ticketId);
+            ticket.status = 'closed';
+            loadAdminTickets();
+        }
+
+        initDemoData();, rate: 1 },
             EUR: { symbol: '€', rate: 0.92 },
             GBP: { symbol: '£', rate: 0.79 }
         };
@@ -644,6 +1256,189 @@
             MATIC: { name: 'Polygon', price: 0.8765 },
             AVAX: { name: 'Avalanche', price: 34.56 }
         };
+        
+        // Define all functions first
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hide');
+            document.getElementById('signupForm').classList.add('hide');
+        }
+        
+        function showSignupForm() {
+            document.getElementById('loginForm').classList.add('hide');
+            document.getElementById('signupForm').classList.remove('hide');
+        }
+        
+        function logout() {
+            currentUser = null;
+            document.getElementById('authScreen').classList.remove('hide');
+            document.getElementById('dashboard').classList.add('hide');
+            showLoginForm();
+        }
+        
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hide');
+            document.getElementById('dashboard').classList.remove('hide');
+            
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}!`;
+            document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
+            document.getElementById('roleBadge').className = `role-badge role-${currentUser.role}`;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('userDashboard').classList.add('hide');
+                document.getElementById('adminDashboard').classList.remove('hide');
+                loadAdminDashboard();
+            } else {
+                document.getElementById('userDashboard').classList.remove('hide');
+                document.getElementById('adminDashboard').classList.add('hide');
+                loadUserDashboard();
+            }
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function closeWithdrawModal() {
+            closeModal('withdrawModal');
+            resetWithdrawForm();
+        }
+        
+        function resetWithdrawForm() {
+            goToWithdrawStep1();
+            document.getElementById('withdrawForm').reset();
+        }
+        
+        function showCreateTicketModal() {
+            document.getElementById('createTicketModal').classList.add('show');
+        }
+        
+        function showDepositModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('depositCrypto').value = symbol;
+            }
+            document.getElementById('depositModal').classList.add('show');
+        }
+
+        function showWithdrawModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('withdrawCrypto').value = symbol;
+                updateWithdrawInfo();
+            }
+            resetWithdrawForm();
+            document.getElementById('withdrawModal').classList.add('show');
+        }
+        
+        function changeCurrency(currency) {
+            currentCurrency = currency;
+            document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+        }
+        
+        function formatCurrency(amount) {
+            const curr = currencies[currentCurrency];
+            return curr.symbol + (amount * curr.rate).toFixed(2);
+        }
+        
+        function calculateTotalBalance() {
+            let total = 0;
+            Object.keys(currentUser.balances).forEach(symbol => {
+                total += currentUser.balances[symbol] * cryptoPrices[symbol].price;
+            });
+            return total;
+        }
+        
+        function updateWithdrawInfo() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const balance = currentUser.balances[crypto];
+            const price = cryptoPrices[crypto].price;
+            document.getElementById('availableBalance').textContent = `Available: ${balance.toFixed(8)} ${crypto} (${formatCurrency(balance * price)})`;
+        }
+        
+        function goToWithdrawStep1() {
+            document.getElementById('withdrawStep1').classList.remove('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2').classList.remove('active', 'completed');
+            document.getElementById('step3').classList.remove('active', 'completed');
+        }
+        
+        function goToWithdrawStep2() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            if (!crypto || !amount || amount <= 0) {
+                alert('Please select cryptocurrency and enter amount');
+                return;
+            }
+            
+            if (amount > currentUser.balances[crypto]) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.remove('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.add('active');
+        }
+        
+        function goToWithdrawStep3() {
+            const address = document.getElementById('withdrawAddress').value;
+            const network = document.getElementById('withdrawNetwork').value;
+            
+            if (!address || !network) {
+                alert('Please enter wallet address and select network');
+                return;
+            }
+            
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const fee = amount * 0.001;
+            const receive = amount - fee;
+            
+            document.getElementById('confirmCrypto').textContent = crypto;
+            document.getElementById('confirmAmount').textContent = `${amount.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmFee').textContent = `${fee.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmReceive').textContent = `${receive.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmAddress').textContent = address;
+            document.getElementById('confirmNetwork').textContent = network.toUpperCase();
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.remove('hide');
+            
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+        }
+        
+        function modifyUserBalance(userId) {
+            const user = users.find(u => u.id === userId);
+            const crypto = prompt('Enter cryptocurrency symbol (BTC, ETH, BNB, etc.):').toUpperCase();
+            
+            if (!crypto || !cryptoPrices[crypto]) {
+                alert('Invalid cryptocurrency');
+                return;
+            }
+            
+            const newBalance = prompt(`Enter new balance for ${crypto}:`);
+            if (newBalance !== null && !isNaN(newBalance)) {
+                user.balances[crypto] = parseFloat(newBalance);
+                loadAdminDashboard();
+            }
+        }
+
+        function closeTicket(ticketId) {
+            const ticket = tickets.find(t => t.id === ticketId);
+            ticket.status = 'closed';
+            loadAdminTickets();
+        }
 
         function initDemoData() {
             cryptoPrices = JSON.parse(JSON.stringify(cryptoData));
