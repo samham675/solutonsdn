@@ -739,55 +739,65 @@
             document.getElementById('signupForm').classList.remove('hide');
         }
 
-        document.getElementById('loginFormSubmit').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (user) {
-                currentUser = user;
-                showDashboard();
-            } else {
-                alert('Invalid credentials');
-            }
-        });
-        
-        document.getElementById('signupFormSubmit').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
-            if (users.find(u => u.email === email)) {
-                alert('Email already registered!');
-                return;
-            }
-            
-            const newUser = {
-                id: users.length + 1,
-                email: email,
-                password: password,
-                role: 'user',
-                name: name,
-                balances: {
-                    BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0,
-                    ADA: 0, DOGE: 0, DOT: 0, MATIC: 0, AVAX: 0
+        if (document.getElementById('loginFormSubmit')) {
+            document.getElementById('loginFormSubmit').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                console.log('Login attempt:', email);
+                
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    console.log('Login successful');
+                    currentUser = user;
+                    showDashboard();
+                } else {
+                    alert('Invalid credentials');
                 }
-            };
-            
-            users.push(newUser);
-            alert('Account created successfully! Please login.');
-            showLoginForm();
-            this.reset();
-        });
+            });
+        }
+        
+        if (document.getElementById('signupFormSubmit')) {
+            document.getElementById('signupFormSubmit').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                
+                console.log('Signup attempt:', email);
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                if (users.find(u => u.email === email)) {
+                    alert('Email already registered!');
+                    return;
+                }
+                
+                const newUser = {
+                    id: users.length + 1,
+                    email: email,
+                    password: password,
+                    role: 'user',
+                    name: name,
+                    balances: {
+                        BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0,
+                        ADA: 0, DOGE: 0, DOT: 0, MATIC: 0, AVAX: 0
+                    }
+                };
+                
+                users.push(newUser);
+                console.log('Signup successful');
+                alert('Account created successfully! Please login.');
+                showLoginForm();
+                this.reset();
+            });
+        }
 
         function logout() {
             currentUser = null;
@@ -1025,121 +1035,129 @@
             document.getElementById('withdrawForm').reset();
         }
 
-        document.getElementById('depositForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const crypto = document.getElementById('depositCrypto').value;
-            const amount = parseFloat(document.getElementById('depositAmount').value);
-            
-            if (amount <= 0) {
-                alert('Amount must be greater than 0');
-                return;
-            }
-            
-            currentUser.balances[crypto] += amount;
-            
-            transactions.push({
-                id: transactions.length + 1,
-                userId: currentUser.id,
-                type: 'deposit',
-                crypto: crypto,
-                amount: amount,
-                date: new Date().toISOString(),
-                description: `${crypto} deposit`
-            });
-            
-            loadUserDashboard();
-            closeModal('depositModal');
-            this.reset();
-            alert('Deposit successful!');
-        });
-
-        document.getElementById('withdrawForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const crypto = document.getElementById('withdrawCrypto').value;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const code2FA = document.getElementById('withdraw2FA').value;
-            
-            if (code2FA !== '123456') {
-                alert('Invalid 2FA code!');
-                return;
-            }
-            
-            if (amount > currentUser.balances[crypto]) {
-                alert('Insufficient balance');
-                return;
-            }
-            
-            const networkFee = amount * 0.001;
-            currentUser.balances[crypto] -= (amount + networkFee);
-            
-            transactions.push({
-                id: transactions.length + 1,
-                userId: currentUser.id,
-                type: 'withdrawal',
-                crypto: crypto,
-                amount: amount,
-                date: new Date().toISOString(),
-                description: `${crypto} withdrawal to ${document.getElementById('withdrawAddress').value.substring(0, 10)}...`
-            });
-            
-            loadUserDashboard();
-            closeWithdrawModal();
-            alert('Withdrawal confirmed! Your funds will be sent to the provided address.');
-        });
-
-        document.getElementById('simulateTransactionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const userId = parseInt(document.getElementById('targetUser').value);
-            const crypto = document.getElementById('cryptoSelect').value;
-            const amount = parseFloat(document.getElementById('transactionAmount').value);
-            const type = document.getElementById('transactionType').value;
-            
-            const user = users.find(u => u.id === userId);
-            
-            if (type === 'deposit') {
-                user.balances[crypto] += amount;
-            } else {
-                if (amount > user.balances[crypto]) {
-                    alert('User has insufficient balance');
+        if (document.getElementById('depositForm')) {
+            document.getElementById('depositForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const crypto = document.getElementById('depositCrypto').value;
+                const amount = parseFloat(document.getElementById('depositAmount').value);
+                
+                if (amount <= 0) {
+                    alert('Amount must be greater than 0');
                     return;
                 }
-                user.balances[crypto] -= amount;
-            }
-            
-            transactions.push({
-                id: transactions.length + 1,
-                userId: userId,
-                type: type,
-                crypto: crypto,
-                amount: amount,
-                date: new Date().toISOString(),
-                description: `Admin simulated ${type}`
+                
+                currentUser.balances[crypto] += amount;
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: currentUser.id,
+                    type: 'deposit',
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `${crypto} deposit`
+                });
+                
+                loadUserDashboard();
+                closeModal('depositModal');
+                this.reset();
+                alert('Deposit successful!');
             });
-            
-            loadAdminDashboard();
-            this.reset();
-            alert('Transaction simulated successfully!');
-        });
+        }
 
-        document.getElementById('createTicketForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const subject = document.getElementById('ticketSubject').value;
-            const message = document.getElementById('ticketMessage').value;
-            
-            tickets.push({
-                id: tickets.length + 1,
-                userId: currentUser.id,
-                subject: subject,
-                message: message,
-                status: 'open',
-                created: new Date().toISOString()
+        if (document.getElementById('withdrawForm')) {
+            document.getElementById('withdrawForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const crypto = document.getElementById('withdrawCrypto').value;
+                const amount = parseFloat(document.getElementById('withdrawAmount').value);
+                const code2FA = document.getElementById('withdraw2FA').value;
+                
+                if (code2FA !== '123456') {
+                    alert('Invalid 2FA code!');
+                    return;
+                }
+                
+                if (amount > currentUser.balances[crypto]) {
+                    alert('Insufficient balance');
+                    return;
+                }
+                
+                const networkFee = amount * 0.001;
+                currentUser.balances[crypto] -= (amount + networkFee);
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: currentUser.id,
+                    type: 'withdrawal',
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `${crypto} withdrawal to ${document.getElementById('withdrawAddress').value.substring(0, 10)}...`
+                });
+                
+                loadUserDashboard();
+                closeWithdrawModal();
+                alert('Withdrawal confirmed! Your funds will be sent to the provided address.');
             });
-            
-            loadUserTickets();
-            closeModal('createTicketModal');
-            this.reset();
-            alert('Support ticket created successfully!');
-        });
+        }
+
+        if (document.getElementById('simulateTransactionForm')) {
+            document.getElementById('simulateTransactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const userId = parseInt(document.getElementById('targetUser').value);
+                const crypto = document.getElementById('cryptoSelect').value;
+                const amount = parseFloat(document.getElementById('transactionAmount').value);
+                const type = document.getElementById('transactionType').value;
+                
+                const user = users.find(u => u.id === userId);
+                
+                if (type === 'deposit') {
+                    user.balances[crypto] += amount;
+                } else {
+                    if (amount > user.balances[crypto]) {
+                        alert('User has insufficient balance');
+                        return;
+                    }
+                    user.balances[crypto] -= amount;
+                }
+                
+                transactions.push({
+                    id: transactions.length + 1,
+                    userId: userId,
+                    type: type,
+                    crypto: crypto,
+                    amount: amount,
+                    date: new Date().toISOString(),
+                    description: `Admin simulated ${type}`
+                });
+                
+                loadAdminDashboard();
+                this.reset();
+                alert('Transaction simulated successfully!');
+            });
+        }
+
+        if (document.getElementById('createTicketForm')) {
+            document.getElementById('createTicketForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const subject = document.getElementById('ticketSubject').value;
+                const message = document.getElementById('ticketMessage').value;
+                
+                tickets.push({
+                    id: tickets.length + 1,
+                    userId: currentUser.id,
+                    subject: subject,
+                    message: message,
+                    status: 'open',
+                    created: new Date().toISOString()
+                });
+                
+                loadUserTickets();
+                closeModal('createTicketModal');
+                this.reset();
+                alert('Support ticket created successfully!');
+            });
+        }
 
         function showCreateTicketModal() {
             document.getElementById('createTicketModal').classList.add('show');
