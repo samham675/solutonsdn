@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Wallet Demo</title>
+    <title>Crypto Wallet Platform</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -33,8 +33,8 @@
         }
         
         .login-card {
-            max-width: 400px;
-            margin: 100px auto;
+            max-width: 450px;
+            margin: 80px auto;
         }
         
         h1, h2, h3 {
@@ -50,6 +50,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
+            color: #555;
         }
         
         input, select, textarea {
@@ -95,6 +96,14 @@
             background: #28a745;
         }
         
+        .btn-link {
+            background: none;
+            color: #667eea;
+            text-decoration: underline;
+            padding: 0;
+            margin: 10px 0;
+        }
+        
         .header {
             display: flex;
             justify-content: space-between;
@@ -132,8 +141,53 @@
         
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
+        }
+        
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .crypto-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .crypto-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .crypto-symbol {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .crypto-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .crypto-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .crypto-balance {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
         }
         
         .balance-card {
@@ -146,6 +200,29 @@
             font-size: 2.5em;
             font-weight: bold;
             margin: 10px 0;
+        }
+        
+        .currency-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .currency-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .currency-btn.active {
+            background: white;
+            color: #2c3e50;
+            border-color: white;
         }
         
         .transaction-item {
@@ -222,35 +299,118 @@
             background: white;
             padding: 30px;
             border-radius: 12px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #f0f0f0;
+            margin: 0 5px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+        }
+        
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #0c5460;
+        }
+        
+        .price-change-positive {
+            color: #28a745;
+        }
+        
+        .price-change-negative {
+            color: #dc3545;
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen">
+    <!-- Login/Signup Screen -->
+    <div id="authScreen">
         <div class="container">
             <div class="card login-card">
-                <h1>Crypto Wallet Demo</h1>
-                <p style="margin-bottom: 30px; color: #666;">Demo credentials:</p>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-                    <strong>Admin:</strong> admin@demo.com / admin123<br>
-                    <strong>User:</strong> user@demo.com / user123
+                <h1>Crypto Wallet Platform</h1>
+                
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <p style="margin-bottom: 20px; color: #666;">Demo credentials:</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                        <strong>Admin:</strong> admin@demo.com / admin123<br>
+                        <strong>User:</strong> user@demo.com / user123
+                    </div>
+                    <form id="loginFormSubmit">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit">Login</button>
+                        <button type="button" class="btn-link" onclick="showSignupForm()">Don't have an account? Sign up</button>
+                    </form>
                 </div>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <button type="submit">Login</button>
-                </form>
+                
+                <!-- Signup Form -->
+                <div id="signupForm" class="hide">
+                    <form id="signupFormSubmit">
+                        <div class="form-group">
+                            <label for="signupName">Full Name</label>
+                            <input type="text" id="signupName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupConfirmPassword">Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" minlength="6" required>
+                        </div>
+                        <button type="submit">Sign Up</button>
+                        <button type="button" class="btn-link" onclick="showLoginForm()">Already have an account? Login</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -270,12 +430,18 @@
             <div id="userDashboard">
                 <div class="dashboard-grid">
                     <div class="card balance-card">
-                        <h3>Wallet Balance</h3>
-                        <div class="balance-amount" id="userBalance">$0.00</div>
-                        <div>
-                            <button onclick="showDepositModal()">Deposit</button>
-                            <button onclick="showWithdrawModal()">Withdraw</button>
+                        <h3>Total Balance</h3>
+                        <div class="currency-selector">
+                            <button class="currency-btn active" onclick="changeCurrency('USD')">USD</button>
+                            <button class="currency-btn" onclick="changeCurrency('EUR')">EUR</button>
+                            <button class="currency-btn" onclick="changeCurrency('GBP')">GBP</button>
                         </div>
+                        <div class="balance-amount" id="userBalance">$0.00</div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Your Cryptocurrencies</h3>
+                        <div class="crypto-grid" id="cryptoPortfolio"></div>
                     </div>
 
                     <div class="card">
@@ -309,8 +475,12 @@
                                 <select id="targetUser" required></select>
                             </div>
                             <div class="form-group">
-                                <label for="transactionAmount">Amount ($)</label>
-                                <input type="number" id="transactionAmount" step="0.01" required>
+                                <label for="cryptoSelect">Cryptocurrency</label>
+                                <select id="cryptoSelect" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionAmount">Amount</label>
+                                <input type="number" id="transactionAmount" step="0.00000001" required>
                             </div>
                             <div class="form-group">
                                 <label for="transactionType">Type</label>
@@ -332,35 +502,104 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Deposit Modal -->
     <div id="depositModal" class="modal">
         <div class="modal-content">
-            <h3>Deposit Funds</h3>
+            <h3>Deposit Cryptocurrency</h3>
             <form id="depositForm">
                 <div class="form-group">
-                    <label for="depositAmount">Amount ($)</label>
-                    <input type="number" id="depositAmount" step="0.01" min="1" required>
+                    <label for="depositCrypto">Select Cryptocurrency</label>
+                    <select id="depositCrypto" required></select>
                 </div>
-                <button type="submit">Deposit</button>
-                <button type="button" onclick="closeModal('depositModal')">Cancel</button>
+                <div class="form-group">
+                    <label for="depositAmount">Amount</label>
+                    <input type="number" id="depositAmount" step="0.00000001" min="0.00000001" required>
+                </div>
+                <div class="info-box">
+                    <strong>Note:</strong> This is a simulated deposit. In a real exchange, you would send crypto to a deposit address and wait for blockchain confirmations.
+                </div>
+                <button type="submit">Simulate Deposit</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
             </form>
         </div>
     </div>
 
+    <!-- Withdraw Modal -->
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
-            <h3>Withdraw Funds</h3>
+            <h3>Withdraw Cryptocurrency</h3>
+            <div class="step-indicator">
+                <div class="step active" id="step1">1. Select</div>
+                <div class="step" id="step2">2. Address</div>
+                <div class="step" id="step3">3. Confirm</div>
+            </div>
+            
             <form id="withdrawForm">
-                <div class="form-group">
-                    <label for="withdrawAmount">Amount ($)</label>
-                    <input type="number" id="withdrawAmount" step="0.01" min="1" required>
+                <!-- Step 1: Select Crypto and Amount -->
+                <div id="withdrawStep1">
+                    <div class="form-group">
+                        <label for="withdrawCrypto">Select Cryptocurrency</label>
+                        <select id="withdrawCrypto" required onchange="updateWithdrawInfo()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawAmount">Amount</label>
+                        <input type="number" id="withdrawAmount" step="0.00000001" min="0.00000001" required onchange="updateWithdrawInfo()">
+                        <small id="availableBalance" style="color: #666;"></small>
+                    </div>
+                    <button type="button" onclick="goToWithdrawStep2()">Next</button>
+                    <button type="button" class="btn-secondary" onclick="closeWithdrawModal()">Cancel</button>
                 </div>
-                <button type="submit">Withdraw</button>
-                <button type="button" onclick="closeModal('withdrawModal')">Cancel</button>
+                
+                <!-- Step 2: Wallet Address -->
+                <div id="withdrawStep2" class="hide">
+                    <div class="form-group">
+                        <label for="withdrawAddress">Wallet Address</label>
+                        <input type="text" id="withdrawAddress" required placeholder="Enter destination wallet address">
+                        <small style="color: #666;">Double-check the address. Transactions cannot be reversed.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawNetwork">Network</label>
+                        <select id="withdrawNetwork" required>
+                            <option value="mainnet">Main Network</option>
+                            <option value="bep20">BEP20 (BSC)</option>
+                            <option value="erc20">ERC20 (Ethereum)</option>
+                            <option value="trc20">TRC20 (Tron)</option>
+                        </select>
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Important:</strong> Ensure you've selected the correct network. Sending to wrong network may result in loss of funds.
+                    </div>
+                    <button type="button" onclick="goToWithdrawStep3()">Next</button>
+                    <button type="button" class="btn-secondary" onclick="goToWithdrawStep1()">Back</button>
+                </div>
+                
+                <!-- Step 3: Confirmation -->
+                <div id="withdrawStep3" class="hide">
+                    <h4>Confirm Withdrawal</h4>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p><strong>Cryptocurrency:</strong> <span id="confirmCrypto"></span></p>
+                        <p><strong>Amount:</strong> <span id="confirmAmount"></span></p>
+                        <p><strong>Network Fee:</strong> <span id="confirmFee"></span></p>
+                        <p><strong>You'll receive:</strong> <span id="confirmReceive"></span></p>
+                        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                        <p><strong>Destination:</strong> <span id="confirmAddress" style="word-break: break-all; font-size: 12px;"></span></p>
+                        <p><strong>Network:</strong> <span id="confirmNetwork"></span></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="withdraw2FA">2FA Code (Demo: use 123456)</label>
+                        <input type="text" id="withdraw2FA" required placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <div class="warning-box">
+                        <strong>⚠️ Final Warning:</strong> This withdrawal cannot be canceled or reversed. Please verify all details carefully.
+                    </div>
+                    <button type="submit">Confirm Withdrawal</button>
+                    <button type="button" class="btn-secondary" onclick="goToWithdrawStep2()">Back</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Create Ticket Modal -->
     <div id="createTicketModal" class="modal">
         <div class="modal-content">
             <h3>Create Support Ticket</h3>
@@ -374,7 +613,7 @@
                     <textarea id="ticketMessage" rows="4" required></textarea>
                 </div>
                 <button type="submit">Create Ticket</button>
-                <button type="button" onclick="closeModal('createTicketModal')">Cancel</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('createTicketModal')">Cancel</button>
             </form>
         </div>
     </div>
@@ -384,24 +623,69 @@
         let users = [];
         let transactions = [];
         let tickets = [];
+        let currentCurrency = 'USD';
+        let cryptoPrices = {};
+        
+        const currencies = {
+            USD: { symbol: '$', rate: 1 },
+            EUR: { symbol: '€', rate: 0.92 },
+            GBP: { symbol: '£', rate: 0.79 }
+        };
+        
+        const cryptoData = {
+            BTC: { name: 'Bitcoin', price: 67543.21 },
+            ETH: { name: 'Ethereum', price: 3456.78 },
+            BNB: { name: 'Binance Coin', price: 598.34 },
+            SOL: { name: 'Solana', price: 142.67 },
+            XRP: { name: 'Ripple', price: 0.5234 },
+            ADA: { name: 'Cardano', price: 0.4567 },
+            DOGE: { name: 'Dogecoin', price: 0.1234 },
+            DOT: { name: 'Polkadot', price: 7.89 },
+            MATIC: { name: 'Polygon', price: 0.8765 },
+            AVAX: { name: 'Avalanche', price: 34.56 }
+        };
 
         function initDemoData() {
+            cryptoPrices = JSON.parse(JSON.stringify(cryptoData));
+            
             users = [
                 {
                     id: 1,
                     email: 'admin@demo.com',
                     password: 'admin123',
                     role: 'admin',
-                    balance: 10000.00,
-                    name: 'Admin User'
+                    name: 'Admin User',
+                    balances: {
+                        BTC: 1.5,
+                        ETH: 10,
+                        BNB: 50,
+                        SOL: 100,
+                        XRP: 1000,
+                        ADA: 2000,
+                        DOGE: 5000,
+                        DOT: 200,
+                        MATIC: 1500,
+                        AVAX: 50
+                    }
                 },
                 {
                     id: 2,
                     email: 'user@demo.com',
                     password: 'user123',
                     role: 'user',
-                    balance: 500.00,
-                    name: 'Demo User'
+                    name: 'Demo User',
+                    balances: {
+                        BTC: 0.05,
+                        ETH: 1.2,
+                        BNB: 5,
+                        SOL: 10,
+                        XRP: 100,
+                        ADA: 200,
+                        DOGE: 500,
+                        DOT: 20,
+                        MATIC: 150,
+                        AVAX: 5
+                    }
                 }
             ];
 
@@ -410,9 +694,10 @@
                     id: 1,
                     userId: 2,
                     type: 'deposit',
-                    amount: 500.00,
+                    crypto: 'BTC',
+                    amount: 0.05,
                     date: new Date().toISOString(),
-                    description: 'Initial deposit'
+                    description: 'Initial BTC deposit'
                 }
             ];
 
@@ -426,12 +711,38 @@
                     created: new Date().toISOString()
                 }
             ];
+            
+            simulatePriceUpdates();
+        }
+        
+        function simulatePriceUpdates() {
+            setInterval(() => {
+                Object.keys(cryptoPrices).forEach(symbol => {
+                    const change = (Math.random() - 0.5) * 0.02;
+                    cryptoPrices[symbol].price *= (1 + change);
+                });
+                
+                if (currentUser && currentUser.role === 'user') {
+                    updateCryptoPortfolio();
+                    document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+                }
+            }, 5000);
+        }
+        
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('hide');
+            document.getElementById('signupForm').classList.add('hide');
+        }
+        
+        function showSignupForm() {
+            document.getElementById('loginForm').classList.add('hide');
+            document.getElementById('signupForm').classList.remove('hide');
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginFormSubmit').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
             const user = users.find(u => u.email === email && u.password === password);
             
@@ -442,16 +753,51 @@
                 alert('Invalid credentials');
             }
         });
+        
+        document.getElementById('signupFormSubmit').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                alert('Email already registered!');
+                return;
+            }
+            
+            const newUser = {
+                id: users.length + 1,
+                email: email,
+                password: password,
+                role: 'user',
+                name: name,
+                balances: {
+                    BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0,
+                    ADA: 0, DOGE: 0, DOT: 0, MATIC: 0, AVAX: 0
+                }
+            };
+            
+            users.push(newUser);
+            alert('Account created successfully! Please login.');
+            showLoginForm();
+            this.reset();
+        });
 
         function logout() {
             currentUser = null;
-            document.getElementById('loginScreen').classList.remove('hide');
+            document.getElementById('authScreen').classList.remove('hide');
             document.getElementById('dashboard').classList.add('hide');
-            document.getElementById('loginForm').reset();
+            showLoginForm();
         }
 
         function showDashboard() {
-            document.getElementById('loginScreen').classList.add('hide');
+            document.getElementById('authScreen').classList.add('hide');
             document.getElementById('dashboard').classList.remove('hide');
             
             document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}!`;
@@ -468,13 +814,53 @@
                 loadUserDashboard();
             }
         }
-
-        function loadUserDashboard() {
-            document.getElementById('userBalance').textContent = `$${currentUser.balance.toFixed(2)}`;
-            loadUserTransactions();
-            loadUserTickets();
+        
+        function changeCurrency(currency) {
+            currentCurrency = currency;
+            document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+        }
+        
+        function formatCurrency(amount) {
+            const curr = currencies[currentCurrency];
+            return curr.symbol + (amount * curr.rate).toFixed(2);
+        }
+        
+        function calculateTotalBalance() {
+            let total = 0;
+            Object.keys(currentUser.balances).forEach(symbol => {
+                total += currentUser.balances[symbol] * cryptoPrices[symbol].price;
+            });
+            return total;
         }
 
+        function loadUserDashboard() {
+            document.getElementById('userBalance').textContent = formatCurrency(calculateTotalBalance());
+            updateCryptoPortfolio();
+            loadUserTransactions();
+            loadUserTickets();
+            populateCryptoSelects();
+        }
+        
+        function updateCryptoPortfolio() {
+            const container = document.getElementById('cryptoPortfolio');
+            container.innerHTML = Object.keys(cryptoPrices).map(symbol => {
+                const balance = currentUser.balances[symbol];
+                const value = balance * cryptoPrices[symbol].price;
+                return `
+                    <div class="crypto-card" onclick="showDepositModal('${symbol}')">
+                        <div class="crypto-symbol">${symbol}</div>
+                        <div class="crypto-name">${cryptoPrices[symbol].name}</div>
+                        <div class="crypto-price">${formatCurrency(cryptoPrices[symbol].price)}</div>
+                        <div class="crypto-balance">${balance.toFixed(8)} ${symbol}</div>
+                        <small style="color: #666; margin-top: 5px; display: block;">${formatCurrency(value)}</small>
+                        <button style="margin-top: 10px; font-size: 12px; padding: 6px 12px;" onclick="event.stopPropagation(); showWithdrawModal('${symbol}')">Withdraw</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
         function loadUserTransactions() {
             const userTransactions = transactions.filter(t => t.userId === currentUser.id);
             const container = document.getElementById('transactionsList');
@@ -484,17 +870,23 @@
                 return;
             }
             
-            container.innerHTML = userTransactions.map(t => `
-                <div class="transaction-item">
-                    <div>
-                        <div>${t.description}</div>
-                        <small>${new Date(t.date).toLocaleDateString()}</small>
+            container.innerHTML = userTransactions.map(t => {
+                const value = t.amount * cryptoPrices[t.crypto].price;
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <div><strong>${t.description}</strong></div>
+                            <small>${new Date(t.date).toLocaleDateString()}</small>
+                        </div>
+                        <div>
+                            <div class="transaction-amount ${t.type === 'deposit' ? 'transaction-positive' : 'transaction-negative'}">
+                                ${t.type === 'deposit' ? '+' : '-'}${t.amount.toFixed(8)} ${t.crypto}
+                            </div>
+                            <small style="color: #888;">${formatCurrency(value)}</small>
+                        </div>
                     </div>
-                    <div class="transaction-amount ${t.type === 'deposit' ? 'transaction-positive' : 'transaction-negative'}">
-                        ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function loadUserTickets() {
@@ -522,24 +914,31 @@
             loadUsersList();
             loadAdminTickets();
             populateUserSelect();
+            populateCryptoSelects();
         }
 
         function loadUsersList() {
             const regularUsers = users.filter(u => u.role === 'user');
             const container = document.getElementById('usersList');
             
-            container.innerHTML = regularUsers.map(u => `
-                <div class="transaction-item">
-                    <div>
-                        <div><strong>${u.name}</strong></div>
-                        <small>${u.email}</small>
+            container.innerHTML = regularUsers.map(u => {
+                let totalBalance = 0;
+                Object.keys(u.balances).forEach(symbol => {
+                    totalBalance += u.balances[symbol] * cryptoPrices[symbol].price;
+                });
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <div><strong>${u.name}</strong></div>
+                            <small>${u.email}</small>
+                        </div>
+                        <div>
+                            <div><strong>${formatCurrency(totalBalance)}</strong></div>
+                            <button onclick="modifyUserBalance(${u.id})" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Modify Balance</button>
+                        </div>
                     </div>
-                    <div>
-                        <div><strong>$${u.balance.toFixed(2)}</strong></div>
-                        <button onclick="modifyUserBalance(${u.id})" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Modify Balance</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function loadAdminTickets() {
@@ -571,6 +970,22 @@
             }).join('');
         }
 
+        function populateCryptoSelects() {
+            const selects = [
+                document.getElementById('depositCrypto'),
+                document.getElementById('withdrawCrypto'),
+                document.getElementById('cryptoSelect')
+            ];
+            
+            selects.forEach(select => {
+                if (select) {
+                    select.innerHTML = Object.keys(cryptoPrices).map(symbol => 
+                        `<option value="${symbol}">${symbol} - ${cryptoPrices[symbol].name}</option>`
+                    ).join('');
+                }
+            });
+        }
+
         function populateUserSelect() {
             const select = document.getElementById('targetUser');
             const regularUsers = users.filter(u => u.role === 'user');
@@ -580,73 +995,122 @@
             ).join('');
         }
 
+        function showDepositModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('depositCrypto').value = symbol;
+            }
+            document.getElementById('depositModal').classList.add('show');
+        }
+
+        function showWithdrawModal(symbol = null) {
+            if (symbol) {
+                document.getElementById('withdrawCrypto').value = symbol;
+                updateWithdrawInfo();
+            }
+            resetWithdrawForm();
+            document.getElementById('withdrawModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function closeWithdrawModal() {
+            closeModal('withdrawModal');
+            resetWithdrawForm();
+        }
+        
+        function resetWithdrawForm() {
+            goToWithdrawStep1();
+            document.getElementById('withdrawForm').reset();
+        }
+
         document.getElementById('depositForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const crypto = document.getElementById('depositCrypto').value;
             const amount = parseFloat(document.getElementById('depositAmount').value);
             
-            currentUser.balance += amount;
+            if (amount <= 0) {
+                alert('Amount must be greater than 0');
+                return;
+            }
+            
+            currentUser.balances[crypto] += amount;
             
             transactions.push({
                 id: transactions.length + 1,
                 userId: currentUser.id,
                 type: 'deposit',
+                crypto: crypto,
                 amount: amount,
                 date: new Date().toISOString(),
-                description: 'Wallet deposit'
+                description: `${crypto} deposit`
             });
             
             loadUserDashboard();
             closeModal('depositModal');
             this.reset();
+            alert('Deposit successful!');
         });
 
         document.getElementById('withdrawForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const crypto = document.getElementById('withdrawCrypto').value;
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const code2FA = document.getElementById('withdraw2FA').value;
             
-            if (amount > currentUser.balance) {
-                alert('Insufficient funds');
+            if (code2FA !== '123456') {
+                alert('Invalid 2FA code!');
                 return;
             }
             
-            currentUser.balance -= amount;
+            if (amount > currentUser.balances[crypto]) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            const networkFee = amount * 0.001;
+            currentUser.balances[crypto] -= (amount + networkFee);
             
             transactions.push({
                 id: transactions.length + 1,
                 userId: currentUser.id,
                 type: 'withdrawal',
+                crypto: crypto,
                 amount: amount,
                 date: new Date().toISOString(),
-                description: 'Cash withdrawal'
+                description: `${crypto} withdrawal to ${document.getElementById('withdrawAddress').value.substring(0, 10)}...`
             });
             
             loadUserDashboard();
-            closeModal('withdrawModal');
-            this.reset();
+            closeWithdrawModal();
+            alert('Withdrawal confirmed! Your funds will be sent to the provided address.');
         });
 
         document.getElementById('simulateTransactionForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const userId = parseInt(document.getElementById('targetUser').value);
+            const crypto = document.getElementById('cryptoSelect').value;
             const amount = parseFloat(document.getElementById('transactionAmount').value);
             const type = document.getElementById('transactionType').value;
             
             const user = users.find(u => u.id === userId);
             
             if (type === 'deposit') {
-                user.balance += amount;
+                user.balances[crypto] += amount;
             } else {
-                if (amount > user.balance) {
-                    alert('User has insufficient funds');
+                if (amount > user.balances[crypto]) {
+                    alert('User has insufficient balance');
                     return;
                 }
-                user.balance -= amount;
+                user.balances[crypto] -= amount;
             }
             
             transactions.push({
                 id: transactions.length + 1,
                 userId: userId,
                 type: type,
+                crypto: crypto,
                 amount: amount,
                 date: new Date().toISOString(),
                 description: `Admin simulated ${type}`
@@ -677,27 +1141,92 @@
             alert('Support ticket created successfully!');
         });
 
-        function showDepositModal() {
-            document.getElementById('depositModal').classList.add('show');
-        }
-
-        function showWithdrawModal() {
-            document.getElementById('withdrawModal').classList.add('show');
-        }
-
         function showCreateTicketModal() {
             document.getElementById('createTicketModal').classList.add('show');
         }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
+        
+        function updateWithdrawInfo() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const balance = currentUser.balances[crypto];
+            const price = cryptoPrices[crypto].price;
+            document.getElementById('availableBalance').textContent = `Available: ${balance.toFixed(8)} ${crypto} (${formatCurrency(balance * price)})`;
+        }
+        
+        function goToWithdrawStep1() {
+            document.getElementById('withdrawStep1').classList.remove('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2').classList.remove('active', 'completed');
+            document.getElementById('step3').classList.remove('active', 'completed');
+        }
+        
+        function goToWithdrawStep2() {
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            if (!crypto || !amount || amount <= 0) {
+                alert('Please select cryptocurrency and enter amount');
+                return;
+            }
+            
+            if (amount > currentUser.balances[crypto]) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.remove('hide');
+            document.getElementById('withdrawStep3').classList.add('hide');
+            
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.add('active');
+        }
+        
+        function goToWithdrawStep3() {
+            const address = document.getElementById('withdrawAddress').value;
+            const network = document.getElementById('withdrawNetwork').value;
+            
+            if (!address || !network) {
+                alert('Please enter wallet address and select network');
+                return;
+            }
+            
+            const crypto = document.getElementById('withdrawCrypto').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const fee = amount * 0.001;
+            const receive = amount - fee;
+            
+            document.getElementById('confirmCrypto').textContent = crypto;
+            document.getElementById('confirmAmount').textContent = `${amount.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmFee').textContent = `${fee.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmReceive').textContent = `${receive.toFixed(8)} ${crypto}`;
+            document.getElementById('confirmAddress').textContent = address;
+            document.getElementById('confirmNetwork').textContent = network.toUpperCase();
+            
+            document.getElementById('withdrawStep1').classList.add('hide');
+            document.getElementById('withdrawStep2').classList.add('hide');
+            document.getElementById('withdrawStep3').classList.remove('hide');
+            
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
         }
 
         function modifyUserBalance(userId) {
-            const newBalance = prompt('Enter new balance:');
+            const user = users.find(u => u.id === userId);
+            const crypto = prompt('Enter cryptocurrency symbol (BTC, ETH, BNB, etc.):').toUpperCase();
+            
+            if (!crypto || !cryptoPrices[crypto]) {
+                alert('Invalid cryptocurrency');
+                return;
+            }
+            
+            const newBalance = prompt(`Enter new balance for ${crypto}:`);
             if (newBalance !== null && !isNaN(newBalance)) {
-                const user = users.find(u => u.id === userId);
-                user.balance = parseFloat(newBalance);
+                user.balances[crypto] = parseFloat(newBalance);
                 loadAdminDashboard();
             }
         }
@@ -709,6 +1238,3 @@
         }
 
         initDemoData();
-    </script>
-</body>
-</html>
